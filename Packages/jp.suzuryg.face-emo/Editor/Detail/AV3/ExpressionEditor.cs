@@ -82,6 +82,11 @@ namespace Suzuryg.FaceEmo.Detail.AV3
         public void Dispose()
         {
             StopSampling();
+            if (_previewAvatar != null)
+            {
+                UnityEngine.Object.DestroyImmediate(_previewAvatar);
+                _previewAvatar = null;
+            }
             Undo.undoRedoPerformed -= OnUndoRedoPerformed;
             _disposables.Dispose();
         }
@@ -129,12 +134,14 @@ namespace Suzuryg.FaceEmo.Detail.AV3
             var avatarRoot = _aV3Setting?.TargetAvatar?.gameObject;
             if (avatarRoot == null) { return; }
 
-            if (_previewAvatar != null) { UnityEngine.Object.DestroyImmediate(_previewAvatar); }
-            _previewAvatar = UnityEngine.Object.Instantiate(avatarRoot);
-            // FIXME: Unable to support the case that avatar's body shape balance is tuned by root object's scale. (Is it necessary to assume this case...?)
-            _previewAvatar.transform.localScale = Vector3.one;
-            _previewAvatar.SetActive(true);
-            _previewAvatar.hideFlags = HideFlags.HideAndDontSave;
+            if (_previewAvatar == null)
+            {
+                _previewAvatar = UnityEngine.Object.Instantiate(avatarRoot);
+                // FIXME: Unable to support the case that avatar's body shape balance is tuned by root object's scale. (Is it necessary to assume this case...?)
+                _previewAvatar.transform.localScale = Vector3.one;
+                _previewAvatar.SetActive(true);
+                _previewAvatar.hideFlags = HideFlags.HideAndDontSave;
+            }
 
             // Synthesize preview blend shape
             AnimationClip synthesized;
@@ -164,15 +171,7 @@ namespace Suzuryg.FaceEmo.Detail.AV3
 
         public void StopSampling()
         {
-            try
-            {
-                // Something
-            }
-            finally
-            {
-                if (_previewAvatar != null) { UnityEngine.Object.DestroyImmediate(_previewAvatar); }
-                AnimationMode.StopAnimationMode();
-            }
+            AnimationMode.StopAnimationMode();
         }
 
         public Vector3 GetAvatarViewPosition()
