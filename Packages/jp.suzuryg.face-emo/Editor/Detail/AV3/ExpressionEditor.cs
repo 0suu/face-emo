@@ -159,7 +159,10 @@ namespace Suzuryg.FaceEmo.Detail.AV3
             // Sample
             if (synthesized != null)
             {
-                AnimationMode.StartAnimationMode();
+                if (!AnimationMode.InAnimationMode())
+                {
+                    AnimationMode.StartAnimationMode();
+                }
                 AnimationMode.BeginSampling();
                 AnimationMode.SampleAnimationClip(_previewAvatar, synthesized, synthesized.length);
                 AnimationMode.EndSampling();
@@ -171,7 +174,10 @@ namespace Suzuryg.FaceEmo.Detail.AV3
 
         public void StopSampling()
         {
-            AnimationMode.StopAnimationMode();
+            if (AnimationMode.InAnimationMode())
+            {
+                AnimationMode.StopAnimationMode();
+            }
         }
 
         public Vector3 GetAvatarViewPosition()
@@ -574,15 +580,8 @@ namespace Suzuryg.FaceEmo.Detail.AV3
 
         private void RenderPreviewClip()
         {
-            try
-            {
-                StartSampling();
-                _subWindowProvider.Provide<ExpressionPreviewWindow>()?.UpdateRenderCache();
-            }
-            finally
-            {
-                StopSampling();
-            }
+            StartSampling();
+            _subWindowProvider.Provide<ExpressionPreviewWindow>()?.UpdateRenderCache();
         }
 
         private void InitializePreviewClip()
